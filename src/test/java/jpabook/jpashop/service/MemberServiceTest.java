@@ -5,14 +5,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.repository.MemberRepository;
 
-// @RunWith(SpringRunner.class) //순수단위테스트아니고 디비까지 엮어서 스프링이랑 엮어서 테스트. 근데 JUnit Jupiter does not use this annotation.
+// @RunWith(SpringRunner.class) //(junit4) 순수단위테스트아니고 디비까지 엮어서 스프링이랑 엮어서 테스트. 근데 JUnit Jupiter does not use this annotation.
 @SpringBootTest // @SpringBootTest for Spring Boot integration testing.
 @Transactional
 class MemberServiceTest {
@@ -36,7 +35,7 @@ class MemberServiceTest {
 		// @Transactional jpa에서 같은 트랜잭션 안에서 같은 엔티티 id(pk)값이 같으면 같은 영속성컨텍스트 안에서 하나로관리됨
 	} // 이거 돌리면 로그보면 db인서트 안함. 이유:em.persist에서 insert안하고 @GeneratedValue전략에서는 트랜잭션이 commit 될때 flush되면서 insert한다 jpa는 이러케동작한다
 	
-	@Test
+	@Test //(expected = IllegalStateException.class) // junit4
 	public void 중복_회원_예외() throws Exception {
 		//given
 		Member member1 = new Member();
@@ -47,9 +46,19 @@ class MemberServiceTest {
 		
 		//when
 		memberService.join(member1);
-		memberService.join(member2); // 예외발생해야함
+//		try {
+//			memberService.join(member2); // 예외발생해야함
+//		} catch(IllegalStateException e) {
+//			return;
+//		}
+		
+		
+		//assertThatThrownBy(() -> memberService.join(member2)).isInstanceOf(IllegalStateException.class);
+		assertThrows(IllegalStateException.class, () -> memberService.join(member2));
+		// junit5 두개중에하나
 		
 		//then
+		//fail("예외발생해야함"); // fail: 여기 오면 실패. 위에 join(member2)에서 예외처리하고 나가야됨 여기까지오면안됨
 	}
 
 }
