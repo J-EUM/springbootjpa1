@@ -66,16 +66,25 @@ public class ItemController {
 	
 	@PostMapping("items/{itemId}/edit")
 	public String updateItem(@PathVariable("itemId") Long itemId, @ModelAttribute("form") BookForm form) { //@ModelAttribute
-		
-		Book book = new Book();
-		book.setId(form.getId()); //이거 아이디 체크하는거 유저가 이 아이템에대한 권한이 있는지 체크하는거 서비스나 어딘가에 있어야함 원래
-		book.setName(form.getName());
-		book.setPrice(form.getPrice());
-		book.setStockQuantity(form.getStockQuantity());
-		book.setAuthor(form.getAuthor());
-		book.setIsbn(form.getIsbn());
-		
-		itemService.saveItem(book);
+//		준영속 엔티티?
+//		영속성 컨텍스트가 더는 관리하지 않는 엔티티를 말한다.
+//		(여기서는 itemService.saveItem(book) 에서 수정을 시도하는 Book 객체다. Book 객체는 이미 DB
+//		에 한번 저장되어서 식별자가 존재한다. 이렇게 임의로 만들어낸 엔티티도 기존 식별자를 가지고 있으면 준
+//		영속 엔티티로 볼 수 있다.)
+		// 준영속엔티티 문제 jpa가관리안한다. 영속엔티티는 변경감지함 jpa가 머변경됐는지 알고 트랜잭션커밋때 바꿀수있는데
+		// 밑에 book은 내가걍 new로만든거라 jpa가관리안한다 그래서 걍 set해서바꺼노면 디비업데이트안된다
+//		Book book = new Book();
+//		book.setId(form.getId()); //이거 아이디 체크하는거 유저가 이 아이템에대한 권한이 있는지 체크하는거 서비스나 어딘가에 있어야함 원래
+//		book.setName(form.getName());
+//		book.setPrice(form.getPrice());
+//		book.setStockQuantity(form.getStockQuantity());
+//		book.setAuthor(form.getAuthor());
+//		book.setIsbn(form.getIsbn());
+//		itemService.saveItem(book);
+		//컨트롤러에서 어설프게 엔티티를 생성하지 마세요
+		// 필요한것만 보내라
+		// 필요한거 너무 많으면 걍 UpdateItemDto가튼거 하나 만들어라
+		itemService.updateItem(itemId, form.getName(), form.getPrice(), form.getStockQuantity());
 		return "redirect:/items";
 	}
 }

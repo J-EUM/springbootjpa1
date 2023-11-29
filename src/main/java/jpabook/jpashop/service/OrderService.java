@@ -10,10 +10,12 @@ import jpabook.jpashop.domain.Delivery;
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.domain.Order;
 import jpabook.jpashop.domain.OrderItem;
+import jpabook.jpashop.domain.OrderStatus;
 import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.repository.ItemRepository;
 import jpabook.jpashop.repository.MemberRepository;
 import jpabook.jpashop.repository.OrderRepository;
+import jpabook.jpashop.repository.OrderSearch;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -31,6 +33,7 @@ public class OrderService {
 	@Transactional
 	public Long order(Long memberId, Long itemId, int count) {
 		// 엔티티조회
+		// 트랜잭션안에서 조회해서 영속성컨텍스트에너놓는게좋다
 		Member member = memberRepository.findOne(memberId);
 		Item item = itemRepository.findOne(itemId);
 		
@@ -63,7 +66,7 @@ public class OrderService {
 		//주문 엔티티 조회
 		Order order = orderRepository.findOne(orderId);
 		//주문 취소
-		order.cancel();
+		order.cancel(); //this.setStatus(OrderStatus.CANCEL);이러케 데이터만 바꾸고 따로 디비에 업데이트 안날려주는데(엔티티매니저.update나merge가튼거) 바뀐다. 왜냐면 jpa가 트랜잭션 커밋시점에 바뀐애 찾아서 디비 업데이트문 날리고 트랜잭션커밋한다. 플러시할때 더티체킹해서
 	}
 	
 //	참고: 주문 서비스의 주문과 주문 취소 메서드를 보면 비즈니스 로직 대부분이 엔티티에 있다. 서비스 계층
@@ -74,7 +77,8 @@ public class OrderService {
 //	transactionScript.html)이라 한다
 	
 	// 검색
-//	public List<Order> findOrders(OrderSearch orderSearch){
-//		return orderRepository.findAll(orderSearch);
-//	}
+	//이런거는걍 컨트롤러에서 레포지토리 바로불러도됨
+	public List<Order> findOrders(OrderSearch orderSearch){
+		return orderRepository.findAllByCriteria(orderSearch);
+	}
 }
