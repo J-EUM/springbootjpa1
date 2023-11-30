@@ -78,4 +78,17 @@ public class OrderRepository {
 		 TypedQuery<Order> query = em.createQuery(cq).setMaxResults(1000); //최대	1000건
 		 return query.getResultList();
 		}
+
+	public List<Order> findAllWithMemberDelivery() {
+		return em.createQuery(
+				"select o from Order o" +
+						" join fetch o.member" + // order 가져올때 member까지 객체 그래프로(?) 한방에 가져오려고하는거
+						" join fetch o.delivery d", Order.class
+				// LAZY무시하고 다채워서가져옴 패치조인 fetch는 jpa문법 성능최적화때매 자주사용하는거니까 책이나강좌보셈추천
+		).getResultList();
+	}
+
+
+
+
 }

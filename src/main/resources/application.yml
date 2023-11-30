@@ -7,7 +7,7 @@ spring:
  
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: create #create 애플리케이션 시작할때 드랍하고 다시만들기, none: 데이터 계속쓰기
     properties:
       hibernate:
       # show_sql: true # systemout으로찍는거
