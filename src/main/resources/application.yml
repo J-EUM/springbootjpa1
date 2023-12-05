@@ -12,7 +12,8 @@ spring:
       hibernate:
       # show_sql: true # systemout으로찍는거
         format_sql: true
-            
+        default_batch_fetch_size: 100
+
 logging.level: 
   org.hibernate.SQL: debug # log로찍는거
 # org.hibernate.type: trace #스프링 부트 2.x, hibernate5

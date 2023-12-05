@@ -22,6 +22,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Table(name = "orders")
@@ -36,7 +37,8 @@ public class Order {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id") // 멤버-오더 에서 주인 외래키있는 오더. 여기가만히놔두고 멤버에 오더리스트에다가 mappedBy="member"
 	private Member member;
-	
+
+	@BatchSize(size = 100) //개별적용. xToOne관계일때는 클래스에다가적어야됨
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL) // orderItems에다가 데이터 넣고 order저장하면 oder_item도 같이 저장(삭제할때도)
 	private List<OrderItem> orderItems = new ArrayList<>();
 	
