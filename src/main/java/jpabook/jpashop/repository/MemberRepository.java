@@ -1,46 +1,29 @@
 package jpabook.jpashop.repository;
 
+import jpabook.jpashop.domain.Member;
+import org.springframework.data.jpa.repository.JpaRepository;
+//스프링 데이터 JPA 소개
+//https://spring.io/projects/spring-data-jpa
+//스프링 데이터 JPA는 JPA를 사용할 때 지루하게 반복하는 코드를 자동화 해준다. 이미 라이브러리는 포함되어 있다.
+//기존의 MemberRepository 를 스프링 데이터 JPA로 변경해보
 import java.util.List;
 
-import org.springframework.stereotype.Repository;
+public interface MemberRepository extends JpaRepository<Member, Long> {//타입, pk타입
+    //findAll, save, 등등등등등등....다있다
+    //구현체를 스프링빈인젝션해줘야되지않나요?->구현체를 스프링데이터jpa가 알아서 만들어서 다 넣어줍니다
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jpabook.jpashop.domain.Member;
+    List<Member> findByName(String name); //이게끝임 아래처럼 안해도됨;;
+    //public List<Member> findByName(String name) {
+    //		return em.createQuery("select m from Member m where m.name = :name", Member.class)	// :name->파라미터바인딩, Member.class->조회타입
+    //				.setParameter("name", name)
+    //				.getResultList();
+    //	}
+    //List<Member> findByName(String name);이거를 가지고 findBy 뒤에 Name 있으면 select m from Member m where m.name = :name 이걸 만들어버림
+    //아무렇게나 findByNamenamae 이렇게하면안됨
 
-@Repository // 스프링빈으로 스프링이 등록해주죠..
-public class MemberRepository {
-	
-	@PersistenceContext // jpa가제공하는표준어노테이션. 이거있으면 jpa엔티티매니저를 스프..jpa를 순수하게쓰면 내가 엔티티매니저팩토리에서 직접 엔티티매니저를막꺼내고써야되는데 그럴필요없이스프링이다해결해준다
-	private EntityManager em; // 스프링이 엔티티매니저를만들어서 주입해준다
-	
-	// 만약에 엔티티매니저팩토리를직접주입하고싶으면
-	// @PersistenceUnit
-	// private EntityManagerFactory emf;
-	// 근디이렇게쓸일없겠져
-	
-	public void save(Member member) {
-		em.persist(member); 
-		// jpa가 멤버 저장함 persist 하면 영속성컨텍스트에 멤버객체를넣음->트랜잭션커밋하는시점에 디비에반영 insert쿼리. 
-		// 키랑 밸류가 있는데 키=pk. @GeneratedValue면 id 항상 생성되는게 보장된다. em.persist할때. 아직 디비에 들어가는 시점이 아닐때도 id 있다
-	}
-	
-	public Member findOne(Long id) {
-		return em.find(Member.class, id); // 단건조회 (타입, pk)
-	}
-	
-	public List<Member> findAll() {
-		// 전부다 찾을때는 jpql작성해야된다
-		// sql은 테이블대상으로쿼리, jpql은 엔티티 객체대상으로
-		// (jpql, 반환타입)
-		return em.createQuery("select m from Member m", Member.class)
-			.getResultList();		
-	}
-	
-	public List<Member> findByName(String name) {
-		return em.createQuery("select m from Member m where m.name = :name", Member.class)	// :name->파라미터바인딩, Member.class->조회타입
-				.setParameter("name", name)
-				.getResultList();
-	}
-
+    //스프링 데이터 JPA는 JpaRepository 라는 인터페이스를 제공하는데, 여기에 기본적인 CRUD 기능이 모두
+    //제공된다. (일반적으로 상상할 수 있는 모든 기능이 다 포함되어 있다.)
+    //findByName 처럼 일반화 하기 어려운 기능도 메서드 이름으로 정확한 JPQL 쿼리를 실행한다.
+    //select m from Member m where m.name = :name
+    //개발자는 인터페이스만 만들면 된다. 구현체는 스프링 데이터 JPA가 애플리케이션 실행시점에 주입해준다.
 }

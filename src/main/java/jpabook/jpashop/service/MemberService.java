@@ -47,12 +47,14 @@ public class MemberService {
 	
 	// 회원하나조회
 	public Member findOne(Long memberId) {
-		return memberRepository.findOne(memberId);
+		//return memberRepository.findOne(memberId); //MemberRepositoryOld
+		return memberRepository.findById(memberId).get(); //스프링데이터JPA
 	}
 
 	@Transactional
 	public void update(Long id, String name) {
-		Member member = memberRepository.findOne(id);
+		//Member member = memberRepository.findOne(id); //MemberRepositoryOld
+		Member member = memberRepository.findById(id).get(); //스프링데이터JPA
 		member.setName(name); //변경감지
 	}
 }
