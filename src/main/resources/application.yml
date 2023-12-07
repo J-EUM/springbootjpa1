@@ -13,6 +13,7 @@ spring:
       # show_sql: true # systemout으로찍는거
         format_sql: true
         default_batch_fetch_size: 100
+#    open-in-view: false #디폴트 true #org.hibernate.LazyInitializationException: could not initialize proxy [jpabo...에러
 
 logging.level: 
   org.hibernate.SQL: debug # log로찍는거
