@@ -58,7 +58,7 @@ public class OrderQueryRepository {
 
     private Map<Long, List<OrderItemQueryDto>> findOrderItemMap(List<Long> orderIds) {
         List<OrderItemQueryDto> orderItems = em.createQuery(
-                        "select new jpabook.jpashop.repository.order.query.OrderItemQueryDto(oi.order.id, i.name, oi.orderPrice, oi.count)" +
+                        "select new jpabook.jpashop.repository.order.query.OrderItemQueryDto(oi.order.id, i.name, oi.orderPrice, oi.count)" + //얘도 querydsl로 간단하게바꿀수있음
                                 " from OrderItem oi" +
                                 " join oi.item i" +
                                 " where oi.order.id in :orderIds", OrderItemQueryDto.class) //오더아이디 =말고 in으로

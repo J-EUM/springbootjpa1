@@ -31,7 +31,7 @@ class MemberServiceTest {
 		
 		//then
 		em.flush(); // **트랜잭션 걍 롤백은 하지만 로그로 인서트 찍히는거 보고싶을때. 영속성컨텍스트에 멤버객체 들어가고(위에 memberService.join(member)에서), 플러시는 영속성컨텍스트 db에반영. 강제로 쿼리를 날리고 @Transactional이 롤백해서 인서트됐던게 롤백
-		assertEquals(member, memberRepository.findOne(savedId));
+		assertEquals(member, memberRepository.findById(savedId).get());
 		// @Transactional jpa에서 같은 트랜잭션 안에서 같은 엔티티 id(pk)값이 같으면 같은 영속성컨텍스트 안에서 하나로관리됨
 	} // 이거 돌리면 로그보면 db인서트 안함. 이유:em.persist에서 insert안하고 @GeneratedValue전략에서는 트랜잭션이 commit 될때 flush되면서 insert한다 jpa는 이러케동작한다
 	

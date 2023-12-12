@@ -3,6 +3,9 @@ package jpabook.jpashop.repository;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jpabook.jpashop.domain.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -14,15 +17,22 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import jpabook.jpashop.domain.Member;
-import jpabook.jpashop.domain.Order;
 import lombok.RequiredArgsConstructor;
 
+import static jpabook.jpashop.domain.QMember.*;
+import static jpabook.jpashop.domain.QOrder.*;
+
 @Repository
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class OrderRepository {
 
 	private final EntityManager em;
+	private final JPAQueryFactory query;
+
+	public OrderRepository(EntityManager em) {
+		this.em = em;
+		this.query = new JPAQueryFactory(em);
+	}
 	
 	public void save(Order order) {
 		em.persist(order);
@@ -78,6 +88,49 @@ public class OrderRepository {
 		 TypedQuery<Order> query = em.createQuery(cq).setMaxResults(1000); //최대	1000건
 		 return query.getResultList();
 		}
+
+
+	//QueryDSL
+	//문자로작성하면 돌려봐야 잘못된거 알수있는데
+	//얘는 컴파일시점에 쿼리오류 잡을수있다
+	public List<Order> findAll(OrderSearch orderSearch) {
+
+		//JPAQueryFactory query = new JPAQueryFactory(em); //얘도 OrderRepository 컨스트럭터 만들어서 지우기->코드간결
+
+		//Q파일생성해야됨 build.gradle
+		//그리고 genereated된 파일들 gitignore에 추가. 빌드타임에 generate되면 되기때문
+//		QOrder order = QOrder.order;
+//		QMember member = QMember.member; //없어도 아래 query.select(order)... static import해서 쓸수있다
+		//import static jpabook.jpashop.domain.QMember.*;
+		//import static jpabook.jpashop.domain.QOrder.*;
+
+		return query.select(order)
+				.from(order)
+				.join(order.member, member) //오더의 멤버를 조인하고 alias를 QMember member = QMember.member; 이걸로준다
+				.where(statusEq(orderSearch.getOrderStatus()),  //statusEq 여기서 null오면 where에서 안쓴다 //정적쿼리 .where(order.status.eq(orderSearch.getOrderStatus())))
+						nameLike(orderSearch.getMemberName()))  // 위에꺼 아래꺼 and조건
+				.limit(1000)
+				.fetch();
+		//jpql이랑똑같이생겼다 jpql로 바껴서 실행된다
+		//자바코드라서 오타가 다 잡힌다
+
+	}
+
+	private BooleanExpression nameLike(String memberName) { //BooleanExpression는 쿼리dsl꺼 임포트 import com.querydsl.core.types.dsl.BooleanExpression;
+		if (!StringUtils.hasText(memberName)) {
+			return null;
+		}
+		//return member.name.like(memberName); 		// -> like "name"
+		return member.name.contains(memberName);  	// -> like "%name%"
+	}
+
+	private BooleanExpression statusEq(OrderStatus statusCond) {
+		if (statusCond == null){
+			return null;
+
+		}
+		return order.status.eq(statusCond);
+	}
 
 	public List<Order> findAllWithMemberDelivery() {
 		return em.createQuery(

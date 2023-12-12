@@ -80,6 +80,7 @@ public class OrderService {
 	// 검색
 	//이런거는걍 컨트롤러에서 레포지토리 바로불러도됨
 	public List<Order> findOrders(OrderSearch orderSearch){
-		return orderRepository.findAllByCriteria(orderSearch);
+		//return orderRepository.findAllByCriteria(orderSearch);
+		return orderRepository.findAll(orderSearch);
 	}
 }
